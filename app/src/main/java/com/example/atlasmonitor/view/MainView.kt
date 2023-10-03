@@ -217,11 +217,10 @@ fun LoadingAnimation3(
 }
 
 fun connectUrl(){
-    Log.d("MyLog", urlData.getUrl())
     val runnable2 = Runnable {
         try {
-                     val url = "https://atlasbus.by/Маршруты/Минск/Ивье?date=2023-10-04"
-            val doc = Jsoup.connect(url).get()
+                     //val url = "https://atlasbus.by/Маршруты/Минск/Ивье?date=2023-10-04"
+            val doc = Jsoup.connect(urlData.getUrl()).get()
 //            val doc = Jsoup.connect(urlData.getUrl()).get()
             val time = doc.select("div.MuiGrid-grid-md-3.MuiGrid-item.MuiGrid-root:nth-of-type(1)")
             val info = doc.select("div.MuiGrid-grid-md-auto.MuiGrid-item.MuiGrid-root:nth-of-type(3)")
