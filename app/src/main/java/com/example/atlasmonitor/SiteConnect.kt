@@ -40,7 +40,7 @@ class SiteConnect {
                 } catch (e: IOException) {
                     throw RuntimeException(e)
                 }
-                kotlinx.coroutines.delay(2000)
+                kotlinx.coroutines.delay(5000)
             }
         }
 
@@ -48,7 +48,7 @@ class SiteConnect {
 
     private fun sendNot(foundedTime: String, context: Context) {
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(context, "channel")
-            .setSmallIcon(R.drawable.ic_notification_overlay)
+            .setSmallIcon(R.drawable.sym_def_app_icon)
             .setContentTitle("AtlasMonitor")
             .setContentText("Найдено место на время $foundedTime")
         val notificationManagerCompat = NotificationManagerCompat.from(context)
@@ -62,32 +62,3 @@ class SiteConnect {
         notificationManagerCompat.notify(0, builder.build())
     }
 }
-//var doc: Document
-//lateinit var taskRunnable: Runnable
-//taskRunnable = Runnable {
-//    try {
-//        //doc = Jsoup.connect(url).get()
-//        doc = Jsoup.connect("https://atlasbus.by/Маршруты/Минск/Ивье?date=2023-10-03").get()
-//        val info = doc.select("div.MuiGrid-grid-md-auto.MuiGrid-item.MuiGrid-root:nth-of-type(3)")
-//        for (i in 0..items.size-1) {
-//            if (items[i].isSelected) {
-//                val sits = info[i].allElements
-//                if (sits.size > 1) {
-//                    sendNot(items[i].time, context)
-//                    Intent(context, MyService::class.java).also {
-//                        it.action = MyService.Actions.STOP.toString()
-//                        context.stopService(it)
-//                    }
-//                }
-//            }
-//        }
-//    } catch (e: IOException) {
-//        throw RuntimeException(e)
-//
-//    } finally {
-//        handler.postDelayed(taskRunnable, 2000)
-//    }
-//    //postDelayed(repeatTaskHandler, taskRunnable, "dfs", 5000)
-//}
-//val thread2 = Thread(taskRunnable)
-//thread2.start()

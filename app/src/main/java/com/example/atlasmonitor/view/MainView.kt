@@ -9,7 +9,8 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,12 +27,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,12 +51,16 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.atlasmonitor.TimeItem
 import com.example.atlasmonitor.UrlData
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.delay
 import org.jsoup.Jsoup
 import java.io.IOException
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 val timeArray = mutableListOf<String>()
@@ -72,6 +77,7 @@ fun Navigation() {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -80,17 +86,53 @@ fun MainView(
 ) {
     val valueFrom = remember { mutableStateOf(TextFieldValue()) }
     val valueTo = remember { mutableStateOf(TextFieldValue()) }
-    val valueDate = remember { mutableStateOf(TextFieldValue()) }
+    val valueDateUrl = remember { mutableStateOf("") }
+    val valueDateView = remember { mutableStateOf("") }
+
+    var pickedDate by remember {
+        mutableStateOf(LocalDate.now())
+    }
+
+    val formattedDateUrl by remember {
+        derivedStateOf {
+            DateTimeFormatter
+                .ofPattern("yyyy-MM-dd")
+                .format(pickedDate)
+        }
+    }
+    val formattedDateView by remember {
+        derivedStateOf {
+            DateTimeFormatter
+                .ofPattern("dd MMMM")
+                .format(pickedDate)
+        }
+    }
+    val dateDialogState = rememberMaterialDialogState()
+        MaterialDialog (
+            dialogState = dateDialogState,
+            buttons = {
+                positiveButton("Oк"){
+                    valueDateUrl.value = formattedDateUrl
+                    valueDateView.value = formattedDateView
+                }
+                negativeButton("Отмена")
+            }
+        ){
+            datepicker(
+                initialDate = LocalDate.now()
+            ){
+                pickedDate = it
+            }
+        }
+
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxHeight(0.8f)
-                .fillMaxWidth()
-                ,
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -102,22 +144,34 @@ fun MainView(
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     TextField(
-//                        modifier = Modifier.background(Color.White).border(2.dp, Color.White),
                         value = valueFrom.value,
                         onValueChange = { valueFrom.value = it },
                         placeholder = { Text(text = "Откуда", fontFamily = FontFamily.Monospace) },
                     )
                     TextField(
-//                        modifier = Modifier.background(Color.White).border(2.dp, Color.White),
                         value = valueTo.value,
                         onValueChange = { valueTo.value = it },
                         placeholder = { Text(text = "Куда", fontFamily = FontFamily.Monospace) },
                     )
                     TextField(
-//                        modifier = Modifier.background(Color.White).border(2.dp, Color.White),
-                        value = valueDate.value,
-                        onValueChange = { valueDate.value = it },
+//                        modifier = Modifier.clickable { dateDialogState.show() },
+                        readOnly = true,
+                        interactionSource = remember {MutableInteractionSource()}
+                                .also { interactionSource ->
+                                    LaunchedEffect(interactionSource) {
+                                        interactionSource.interactions.collect {
+                                            if (it is PressInteraction.Release) {
+                                                dateDialogState.show()
+                                            }
+                                        }
+                                    }
+                                },
+                        value = valueDateView.value,
+                        onValueChange = {
+                            valueDateUrl.value = formattedDateUrl.toString()
+                            valueDateView.value = formattedDateView.toString() },
                         placeholder = { Text("Дата", fontFamily = FontFamily.Monospace) },
+
                     )
                 }
             }
@@ -128,9 +182,9 @@ fun MainView(
                 colors = ButtonDefaults.buttonColors(Color.Blue),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
-                    urlData.setUrl(valueFrom.value.text, valueTo.value.text, valueDate.value.text)
-                    //LoadingAnimation3(Color.Blue, 30.dp, 400, 0.3f)
+                    urlData.setUrl(valueFrom.value.text.trim(), valueTo.value.text.trim(), valueDateUrl.value)
                     //navController.navigate("load_screen")
+                    Log.d("MyLog", urlData.getUrl())
                     connectUrl()
                     navController.navigate("sec_screen")
 
@@ -192,11 +246,8 @@ fun LoadingAnimation3(
         Spacer(modifier = Modifier.size(10.dp))
         Row(
             modifier = Modifier
-            //.border(width = 2.dp, color = Color.Magenta)
         ) {
             circles.forEachIndexed { index, animatable ->
-
-                // gap between the circles
                 if (index != 0) {
                     Spacer(modifier = Modifier.width(width = 6.dp))
                 }
@@ -219,9 +270,9 @@ fun LoadingAnimation3(
 fun connectUrl(){
     val runnable2 = Runnable {
         try {
-                     //val url = "https://atlasbus.by/Маршруты/Минск/Ивье?date=2023-10-04"
+            //val url = "https://atlasbus.by/Маршруты/Минск/Ивье?date=2023-10-04"
+            if (timeArray.isNotEmpty()) timeArray.clear()
             val doc = Jsoup.connect(urlData.getUrl()).get()
-//            val doc = Jsoup.connect(urlData.getUrl()).get()
             val time = doc.select("div.MuiGrid-grid-md-3.MuiGrid-item.MuiGrid-root:nth-of-type(1)")
             val info = doc.select("div.MuiGrid-grid-md-auto.MuiGrid-item.MuiGrid-root:nth-of-type(3)")
 

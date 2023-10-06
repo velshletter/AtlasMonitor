@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.atlasmonitor
 
 import android.app.NotificationChannel
@@ -9,13 +11,11 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
-import android.telecom.Connection
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.Composable
+import com.example.atlasmonitor.ui.theme.AtlasMonitorTheme
 import com.example.atlasmonitor.view.ConnectivityStatus
-import com.example.atlasmonitor.view.Navigation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -26,8 +26,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ConnectivityStatus()
-            onCreateChannel()
+            AtlasMonitorTheme {
+                ConnectivityStatus()
+                onCreateChannel()
+            }
         }
 
     }
@@ -68,7 +70,7 @@ private fun getCurrentConnectivityState(
 fun Context.observeConnectivityAsFlow() = callbackFlow {
     val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    val callback = NetworkCallback { connectionState -> trySend(connectionState) }
+    val callback = networkCallback { connectionState -> trySend(connectionState) }
 
     val networkRequest = NetworkRequest.Builder()
         .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
@@ -87,7 +89,7 @@ fun Context.observeConnectivityAsFlow() = callbackFlow {
     }
 }
 
-fun NetworkCallback(callback: (ConnectionState) -> Unit): ConnectivityManager.NetworkCallback {
+fun networkCallback(callback: (ConnectionState) -> Unit): ConnectivityManager.NetworkCallback {
     return object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             callback(ConnectionState.Available)

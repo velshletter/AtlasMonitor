@@ -1,11 +1,9 @@
 package com.example.atlasmonitor
 
-import android.app.NotificationChannel
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import kotlinx.coroutines.NonCancellable.start
 
 class MyService : Service() {
 
@@ -24,10 +22,10 @@ class MyService : Service() {
     private fun start(){
         val notification = NotificationCompat.Builder(this, "channel")
             .setOngoing(true)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.search_128x128)
             .setContentTitle(getString(R.string.app_name))
             .setContentText("Идет поиск...")
-            .build();
+            .build()
         startForeground(1, notification)
     }
     enum class Actions{
