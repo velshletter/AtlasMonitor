@@ -3,7 +3,6 @@ package com.velshletter.atlasmonitor.presentation.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.data.data.WebsiteRepositoryImpl
 import com.example.domain.models.MonitoringData
 import com.example.domain.models.ResponseState
 import com.example.domain.models.TimeItem
@@ -25,8 +24,8 @@ class MainViewModel(
     websiteRepository: WebsiteRepository
 ) : ViewModel() {
 
-    private val getTripInfoUseCase = GetTripInfoUseCase(websiteRepository)// TODO
-    var timeList: List<String> = listOf()
+    private val getTripInfoUseCase = GetTripInfoUseCase(websiteRepository)
+    private var timeList: List<String> = listOf()
     private var url = ""
 
     private var _showToast = MutableStateFlow<String?>(null)
