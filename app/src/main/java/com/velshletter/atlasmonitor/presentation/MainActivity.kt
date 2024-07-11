@@ -3,7 +3,6 @@ package com.velshletter.atlasmonitor.presentation
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -32,6 +31,7 @@ import com.example.data.data.ServiceStateCheckerImpl
 import com.example.data.data.SharedPrefRepositoryImpl
 import com.example.data.data.WebsiteRepositoryImpl
 import com.example.domain.models.ResponseState
+import com.example.domain.repository.SharedPrefRepository
 import com.example.domain.usecase.StartMonitorUseCase
 import com.velshletter.atlasmonitor.presentation.notification.AndroidNotificationSender
 import com.velshletter.atlasmonitor.presentation.screens.MainView
@@ -44,25 +44,29 @@ import com.velshletter.atlasmonitor.ui.theme.AtlasMonitorTheme
 class MainActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        onCreateNotificationChannel()
-        val sharedPrefRepositoryImpl =
-            com.example.data.data.SharedPrefRepositoryImpl(applicationContext)
-        val serviceStateChecker = com.example.data.data.ServiceStateCheckerImpl(applicationContext)
 
+        super.onCreate(savedInstanceState)
+
+        val sharedPrefRepositoryImpl: SharedPrefRepository = SharedPrefRepositoryImpl(applicationContext)
+        val serviceStateChecker = ServiceStateCheckerImpl(applicationContext)
+        val websiteRepository = WebsiteRepositoryImpl()
         val notificationSender = AndroidNotificationSender(applicationContext)
         val serviceManager = AndroidServiceManager(applicationContext)
-        val startMonitorUseCase = com.example.domain.usecase.StartMonitorUseCase(
-            com.example.data.data.WebsiteRepositoryImpl(),
-            notificationSender,
-            serviceManager,
-            serviceStateChecker
+        val startMonitorUseCase = StartMonitorUseCase(
+            websiteRepository = websiteRepository,
+            notificationSender = notificationSender,
+            serviceManager = serviceManager,
+            serviceStateChecker = serviceStateChecker
         )
-        val viewModelFactory = MainViewModelFactory(startMonitorUseCase, sharedPrefRepositoryImpl)
+
+        val viewModelFactory = MainViewModelFactory(startMonitorUseCase, sharedPrefRepositoryImpl, websiteRepository)
         val mainViewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
+
         if (serviceStateChecker.isServiceRunning()) {
             mainViewModel.loadSavedData()
         }
+
+        onCreateNotificationChannel()
         setContent {
             val navController = rememberNavController()
             AtlasMonitorTheme {
@@ -75,27 +79,27 @@ class MainActivity : ComponentActivity() {
             }
             val responseState by mainViewModel.responseState.collectAsState()
             when (responseState) {
-                is com.example.domain.models.ResponseState.Waiting -> {
+                is ResponseState.Waiting -> {
                     if (navController.currentDestination?.route != "main_screen") {
                         navController.navigateUp()
                     }
                 }
 
-                is com.example.domain.models.ResponseState.Loading -> {
+                is ResponseState.Loading -> {
                     LoadingIndicator()
                 }
 
-                is com.example.domain.models.ResponseState.Success -> {
+                is ResponseState.Success -> {
                     navController.navigate("sec_screen")
                 }
 
-                is com.example.domain.models.ResponseState.Error -> {
+                is ResponseState.Error -> {
                     Toast.makeText(
                         applicationContext,
-                        (responseState as com.example.domain.models.ResponseState.Error).description,
+                        (responseState as ResponseState.Error).description,
                         Toast.LENGTH_SHORT
                     ).show()
-                    mainViewModel.updateResponseState(com.example.domain.models.ResponseState.Waiting)
+                    mainViewModel.updateResponseState(ResponseState.Waiting)
                 }
             }
         }

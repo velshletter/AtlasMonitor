@@ -6,7 +6,7 @@ import com.example.domain.repository.ServiceManager
 
 class AndroidServiceManager(
     private val context: Context,
-) : com.example.domain.repository.ServiceManager {
+) : ServiceManager {
 
     override fun startService() {
         Intent(context, ForegroundService::class.java).also {

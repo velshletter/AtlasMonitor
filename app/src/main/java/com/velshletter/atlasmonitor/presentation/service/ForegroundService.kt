@@ -13,11 +13,11 @@ import com.velshletter.atlasmonitor.presentation.MainActivity
 
 class ForegroundService : Service() {
 
-    private lateinit var serviceStateChecker: com.example.domain.repository.ServiceStateChecker
+    private lateinit var serviceStateChecker: ServiceStateChecker
 
     override fun onCreate() {
         super.onCreate()
-        serviceStateChecker = com.example.data.data.ServiceStateCheckerImpl(applicationContext)
+        serviceStateChecker = ServiceStateCheckerImpl(applicationContext)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -39,11 +39,11 @@ class ForegroundService : Service() {
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val alarm = "Идет поиск..."
         val notification = NotificationCompat.Builder(this, "channel")
+            .setOngoing(true)
             .setSmallIcon(R.drawable.search_128x128)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(alarm)
             .setContentIntent(pendingIntent)
-//            .setOngoing(true)
             .build()
         startForeground(1, notification)
     }
