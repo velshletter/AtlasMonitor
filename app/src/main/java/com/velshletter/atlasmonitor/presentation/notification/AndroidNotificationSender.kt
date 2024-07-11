@@ -7,9 +7,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.velshletter.atlasmonitor.R
-import com.velshletter.atlasmonitor.domain.repository.NotificationSender
+import com.example.domain.repository.NotificationSender
 
-class AndroidNotificationSender(private val context: Context) : NotificationSender {
+class AndroidNotificationSender(private val context: Context) :
+    com.example.domain.repository.NotificationSender {
     override fun sendNotification(foundedTime: String) {
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(context, "channel")
             .setSmallIcon(R.drawable.search_128x128)

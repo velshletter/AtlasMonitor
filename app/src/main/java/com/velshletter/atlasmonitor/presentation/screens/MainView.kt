@@ -33,8 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
@@ -46,11 +44,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun MainView(
     mainViewModel: MainViewModel = viewModel(),
-    navController: NavController = rememberNavController(),
 ){
     val valueFrom = mainViewModel.cityFromFlow.collectAsState()
     val valueTo = mainViewModel.cityToFlow.collectAsState()
-//    val valueDateView = remember { mutableStateOf("") }
 
     var pickedDate by remember {
         mutableStateOf(LocalDate.now())
@@ -94,7 +90,6 @@ fun MainView(
         ) {
             Card(
                 shape = RoundedCornerShape(20.dp),
-                //elevation = CardDefaults.cardElevation(5.dp)
             ) {
                 Column(
                     verticalArrangement = Arrangement.SpaceBetween,
@@ -139,6 +134,7 @@ fun MainView(
             ) {
                 Text("Далее", fontSize = 15.sp, fontFamily = FontFamily.Monospace)
             }
+
         }
     }
 

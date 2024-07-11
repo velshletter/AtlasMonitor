@@ -3,15 +3,15 @@ package com.velshletter.atlasmonitor.presentation.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.velshletter.atlasmonitor.data.WebsiteRepositoryImpl
-import com.velshletter.atlasmonitor.domain.models.MonitoringData
-import com.velshletter.atlasmonitor.domain.models.ResponseState
-import com.velshletter.atlasmonitor.domain.models.TimeItem
-import com.velshletter.atlasmonitor.domain.models.TripInfo
-import com.velshletter.atlasmonitor.domain.models.UrlConverter
-import com.velshletter.atlasmonitor.domain.repository.SharedPrefRepository
-import com.velshletter.atlasmonitor.domain.usecase.GetTripInfoUseCase
-import com.velshletter.atlasmonitor.domain.usecase.StartMonitorUseCase
+import com.example.data.data.WebsiteRepositoryImpl
+import com.example.domain.models.MonitoringData
+import com.example.domain.models.ResponseState
+import com.example.domain.models.TimeItem
+import com.example.domain.models.TripInfo
+import com.example.domain.models.UrlConverter
+import com.example.domain.repository.SharedPrefRepository
+import com.example.domain.usecase.GetTripInfoUseCase
+import com.example.domain.usecase.StartMonitorUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,11 +19,12 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class MainViewModel(
-    private val startMonitorUseCase: StartMonitorUseCase,
-    private val sharedPrefRepositoryImpl: SharedPrefRepository
+    private val startMonitorUseCase: com.example.domain.usecase.StartMonitorUseCase,
+    private val sharedPrefRepositoryImpl: com.example.domain.repository.SharedPrefRepository
 ) : ViewModel() {
 
-    private val getTripInfoUseCase = GetTripInfoUseCase(WebsiteRepositoryImpl())
+    private val getTripInfoUseCase =
+        com.example.domain.usecase.GetTripInfoUseCase(com.example.data.data.WebsiteRepositoryImpl())
     var timeList: List<String> = listOf()
     private var url = ""
 
@@ -41,32 +42,36 @@ class MainViewModel(
     private var _dateFlow = MutableStateFlow(formatDate(LocalDate.now()))
     private val dateFlow: StateFlow<String> get() = _dateFlow
 
-    private var _responseState = MutableStateFlow<ResponseState>(ResponseState.Waiting)
-    val responseState: StateFlow<ResponseState> get() = _responseState
+    private var _responseState = MutableStateFlow<com.example.domain.models.ResponseState>(com.example.domain.models.ResponseState.Waiting)
+    val responseState: StateFlow<com.example.domain.models.ResponseState> get() = _responseState
 
-    private var _selectedTime: MutableStateFlow<List<TimeItem>> = MutableStateFlow(listOf())
-    val selectedTime: StateFlow<List<TimeItem>> get() = _selectedTime
+    private var _selectedTime: MutableStateFlow<List<com.example.domain.models.TimeItem>> = MutableStateFlow(listOf())
+    val selectedTime: StateFlow<List<com.example.domain.models.TimeItem>> get() = _selectedTime
 
     fun findTrip() {
         viewModelScope.launch {
             if (cityFromFlow.value.trim().isEmpty() || cityToFlow.value.trim().isEmpty() || dateFlow.value.isEmpty()) {
-                _responseState.value = ResponseState.Error("Заполните все поля")
+                _responseState.value = com.example.domain.models.ResponseState.Error("Заполните все поля")
                 return@launch
             }
-            val tripInfo = TripInfo(cityFromFlow.value.trim(), cityToFlow.value.trim(), dateFlow.value)
+            val tripInfo = com.example.domain.models.TripInfo(
+                cityFromFlow.value.trim(),
+                cityToFlow.value.trim(),
+                dateFlow.value
+            )
             sharedPrefRepositoryImpl.saveTripInfo(tripInfo)
-            url = UrlConverter(tripInfo).getUrl()
-            _responseState.value = ResponseState.Loading
+            url = com.example.domain.models.UrlConverter(tripInfo).getUrl()
+            _responseState.value = com.example.domain.models.ResponseState.Loading
             timeList = getTripInfoUseCase.execute(url = url)
             if (timeList.isNotEmpty()) {
                 _selectedTime.value = timeList.map {
-                    TimeItem(time = it, isSelected = false)
+                    com.example.domain.models.TimeItem(time = it, isSelected = false)
                 }
                 Log.d("MyLog", timeList.toString() + timeList.size)
-                _responseState.value = ResponseState.Success
+                _responseState.value = com.example.domain.models.ResponseState.Success
             } else {
                 _responseState.value =
-                    ResponseState.Error("Проверьте введенные данные и/или подключение к интернету")
+                    com.example.domain.models.ResponseState.Error("Проверьте введенные данные и/или подключение к интернету")
             }
         }
     }
@@ -75,7 +80,12 @@ class MainViewModel(
         if (selectedTime.value.all { !it.isSelected }) {
             _showToast.value = "Укажите время"
         } else {
-            sharedPrefRepositoryImpl.saveMonitoringData(MonitoringData(url, timeList))
+            sharedPrefRepositoryImpl.saveMonitoringData(
+                com.example.domain.models.MonitoringData(
+                    url,
+                    timeList
+                )
+            )
             startMonitorUseCase.execute(url = url, timeList = selectedTime.value)
         }
     }
@@ -85,9 +95,9 @@ class MainViewModel(
         url = monitoringData.url
         timeList = monitoringData.timeList
         _selectedTime.value = timeList.map {
-            TimeItem(time = it, isSelected = false)
+            com.example.domain.models.TimeItem(time = it, isSelected = false)
         }
-        _responseState.value = ResponseState.Success
+        _responseState.value = com.example.domain.models.ResponseState.Success
     }
 
     fun clear() {
@@ -95,7 +105,7 @@ class MainViewModel(
         _cityToFlow.value = ""
         _dateFlow.value = formatDate(LocalDate.now())
         timeList = listOf()
-        _responseState.value = ResponseState.Waiting
+        _responseState.value = com.example.domain.models.ResponseState.Waiting
     }
 
     fun updateCityFrom(city: String) {
@@ -110,11 +120,11 @@ class MainViewModel(
         _dateFlow.value = formatDate(date)
     }
 
-    fun updateResponseState(state: ResponseState) {
+    fun updateResponseState(state: com.example.domain.models.ResponseState) {
         _responseState.value = state
     }
 
-    fun updateTime(items: List<TimeItem>) {
+    fun updateTime(items: List<com.example.domain.models.TimeItem>) {
         _selectedTime.value = items
     }
 

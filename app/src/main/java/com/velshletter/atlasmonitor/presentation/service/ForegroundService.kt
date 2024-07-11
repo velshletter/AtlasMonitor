@@ -7,17 +7,17 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.velshletter.atlasmonitor.R
-import com.velshletter.atlasmonitor.data.ServiceStateCheckerImpl
-import com.velshletter.atlasmonitor.domain.repository.ServiceStateChecker
+import com.example.data.data.ServiceStateCheckerImpl
+import com.example.domain.repository.ServiceStateChecker
 import com.velshletter.atlasmonitor.presentation.MainActivity
 
 class ForegroundService : Service() {
 
-    private lateinit var serviceStateChecker: ServiceStateChecker
+    private lateinit var serviceStateChecker: com.example.domain.repository.ServiceStateChecker
 
     override fun onCreate() {
         super.onCreate()
-        serviceStateChecker = ServiceStateCheckerImpl(applicationContext)
+        serviceStateChecker = com.example.data.data.ServiceStateCheckerImpl(applicationContext)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

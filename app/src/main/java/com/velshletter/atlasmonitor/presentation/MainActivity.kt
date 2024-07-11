@@ -28,11 +28,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.velshletter.atlasmonitor.data.ServiceStateCheckerImpl
-import com.velshletter.atlasmonitor.data.SharedPrefRepositoryImpl
-import com.velshletter.atlasmonitor.data.WebsiteRepositoryImpl
-import com.velshletter.atlasmonitor.domain.models.ResponseState
-import com.velshletter.atlasmonitor.domain.usecase.StartMonitorUseCase
+import com.example.data.data.ServiceStateCheckerImpl
+import com.example.data.data.SharedPrefRepositoryImpl
+import com.example.data.data.WebsiteRepositoryImpl
+import com.example.domain.models.ResponseState
+import com.example.domain.usecase.StartMonitorUseCase
 import com.velshletter.atlasmonitor.presentation.notification.AndroidNotificationSender
 import com.velshletter.atlasmonitor.presentation.screens.MainView
 import com.velshletter.atlasmonitor.presentation.screens.SecondScreen
@@ -46,13 +46,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         onCreateNotificationChannel()
-        val sharedPrefRepositoryImpl = SharedPrefRepositoryImpl(applicationContext)
-        val serviceStateChecker = ServiceStateCheckerImpl(applicationContext)
+        val sharedPrefRepositoryImpl =
+            com.example.data.data.SharedPrefRepositoryImpl(applicationContext)
+        val serviceStateChecker = com.example.data.data.ServiceStateCheckerImpl(applicationContext)
 
         val notificationSender = AndroidNotificationSender(applicationContext)
         val serviceManager = AndroidServiceManager(applicationContext)
-        val startMonitorUseCase = StartMonitorUseCase(
-            WebsiteRepositoryImpl(),
+        val startMonitorUseCase = com.example.domain.usecase.StartMonitorUseCase(
+            com.example.data.data.WebsiteRepositoryImpl(),
             notificationSender,
             serviceManager,
             serviceStateChecker
@@ -74,27 +75,27 @@ class MainActivity : ComponentActivity() {
             }
             val responseState by mainViewModel.responseState.collectAsState()
             when (responseState) {
-                is ResponseState.Waiting -> {
+                is com.example.domain.models.ResponseState.Waiting -> {
                     if (navController.currentDestination?.route != "main_screen") {
                         navController.navigateUp()
                     }
                 }
 
-                is ResponseState.Loading -> {
+                is com.example.domain.models.ResponseState.Loading -> {
                     LoadingIndicator()
                 }
 
-                is ResponseState.Success -> {
+                is com.example.domain.models.ResponseState.Success -> {
                     navController.navigate("sec_screen")
                 }
 
-                is ResponseState.Error -> {
+                is com.example.domain.models.ResponseState.Error -> {
                     Toast.makeText(
                         applicationContext,
-                        (responseState as ResponseState.Error).description,
+                        (responseState as com.example.domain.models.ResponseState.Error).description,
                         Toast.LENGTH_SHORT
                     ).show()
-                    mainViewModel.updateResponseState(ResponseState.Waiting)
+                    mainViewModel.updateResponseState(com.example.domain.models.ResponseState.Waiting)
                 }
             }
         }
@@ -130,7 +131,7 @@ fun Navigation(
     startDestination: String = "main_screen",
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
-        composable("main_screen") { MainView(mainViewModel, navController) }
+        composable("main_screen") { MainView(mainViewModel) }
         composable("sec_screen") { SecondScreen(mainViewModel, serviceManager) }
     }
 }

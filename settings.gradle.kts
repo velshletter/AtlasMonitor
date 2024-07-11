@@ -15,3 +15,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "AtlasMonitor"
 include(":app")
+include(":data")
+include(":domain")

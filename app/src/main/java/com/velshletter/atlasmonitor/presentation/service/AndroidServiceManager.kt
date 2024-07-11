@@ -2,11 +2,11 @@ package com.velshletter.atlasmonitor.presentation.service
 
 import android.content.Context
 import android.content.Intent
-import com.velshletter.atlasmonitor.domain.repository.ServiceManager
+import com.example.domain.repository.ServiceManager
 
 class AndroidServiceManager(
     private val context: Context,
-) : ServiceManager {
+) : com.example.domain.repository.ServiceManager {
 
     override fun startService() {
         Intent(context, ForegroundService::class.java).also {

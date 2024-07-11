@@ -51,6 +51,9 @@ android {
 
 dependencies {
 
+    implementation(project(":domain"))
+    implementation(project(":data"))
+
     implementation ("androidx.core:core-ktx:1.13.1")
     constraints {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
@@ -60,12 +63,10 @@ dependencies {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
-    implementation ("com.google.code.gson:gson:2.10.1")
     implementation ("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.foundation:foundation-android:1.6.8")
     implementation ("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation ("org.jsoup:jsoup:1.16.1")
     implementation ("androidx.navigation:navigation-compose:2.7.7")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
     implementation ("androidx.activity:activity-compose:1.9.0")
