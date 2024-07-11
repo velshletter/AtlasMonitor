@@ -1,16 +1,9 @@
 package com.velshletter.atlasmonitor.domain.usecase
 
 import android.util.Log
-import com.velshletter.atlasmonitor.data.WebsiteRepositoryImpl
-import com.velshletter.atlasmonitor.domain.models.ResponseState
-import com.velshletter.atlasmonitor.domain.models.Url
 import com.velshletter.atlasmonitor.domain.repository.WebsiteRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.jsoup.Jsoup
 import java.io.IOException
 
 class GetTripInfoUseCase(private val websiteRepository: WebsiteRepository) {

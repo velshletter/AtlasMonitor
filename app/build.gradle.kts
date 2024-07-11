@@ -60,6 +60,7 @@ dependencies {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
+    implementation ("com.google.code.gson:gson:2.10.1")
     implementation ("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.foundation:foundation-android:1.6.8")
     implementation ("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")

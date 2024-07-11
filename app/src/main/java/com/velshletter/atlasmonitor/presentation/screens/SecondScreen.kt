@@ -1,4 +1,4 @@
-package com.velshletter.atlasmonitor.presentation
+package com.velshletter.atlasmonitor.presentation.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -23,34 +23,31 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.velshletter.atlasmonitor.domain.models.TimeItem
+import com.velshletter.atlasmonitor.presentation.service.AndroidServiceManager
+import com.velshletter.atlasmonitor.presentation.viewmodels.MainViewModel
 
-@Preview(showBackground = true)
+
 @Composable
 fun SecondScreen(
     mainViewModel: MainViewModel = viewModel(),
+    serviceManager: AndroidServiceManager,
 ) {
-    val timeArray: List<String> = mainViewModel.timeArray
+
+    val timeList by mainViewModel.selectedTime.collectAsState()
+
     BackHandler {
         mainViewModel.clear()
     }
-    var items by remember {
-        mutableStateOf(timeArray.map {
-            TimeItem(time = it, isSelected = false)
-        })
-    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -70,26 +67,26 @@ fun SecondScreen(
                 LazyColumn(
                     verticalArrangement = Arrangement.Center
                 ) {
-                    items(items.size) { index ->
+                    items(timeList.size) { index ->
                         Row(
                             modifier = Modifier
                                 .size(280.dp, 40.dp)
                                 .clickable {
-                                    items = items.mapIndexed { j, item ->
+                                    mainViewModel.updateTime(timeList.mapIndexed { j, item ->
                                         if (index == j) {
                                             item.copy(isSelected = !item.isSelected)
                                         } else item
-                                    }
+                                    })
                                 },
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = items[index].time,
+                                text = timeList[index].time,
                                 fontSize = 18.sp,
                                 modifier = Modifier.padding(10.dp, 0.dp)
                             )
-                            if (items[index].isSelected) {
+                            if (timeList[index].isSelected) {
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
                                     contentDescription = "Selected",
@@ -110,16 +107,9 @@ fun SecondScreen(
                 colors = ButtonDefaults.buttonColors(Color.Blue),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
-//                    Intent(context,MyService::class.java).also {
-//                        it.action = MyService.Actions.START.toString()
-//                        context.startService(it)
-//                    }
-//
-//                    Log.d("MyLog","")
-//                    SiteConnect().startMonitor(urlData.getUrl(), items, context)
+                    mainViewModel.startMonitor()
                 },
-
-                ) {
+            ) {
                 Text("Начать поиск", fontSize = 15.sp, fontFamily = FontFamily.Monospace)
             }
             Button(
@@ -129,10 +119,7 @@ fun SecondScreen(
                 colors = ButtonDefaults.buttonColors(Color.Blue),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
-//                    Intent(context,MyService::class.java).also {
-//                        it.action = MyService.Actions.STOP.toString()
-//                        context.startService(it)
-//                    }
+                    serviceManager.stopService()
                 }
             ) {
                 Text("Остановить поиск", fontSize = 15.sp, fontFamily = FontFamily.Monospace)

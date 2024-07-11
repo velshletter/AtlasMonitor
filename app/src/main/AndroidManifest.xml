@@ -3,20 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_atlas_monitor"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_atlas_monitor_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AtlasMonitor"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.AtlasMonitor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".presentation.service.ForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="TODO" />
     </application>
 
 </manifest>
