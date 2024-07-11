@@ -3,7 +3,6 @@ package com.velshletter.atlasmonitor.presentation.service
 import android.content.Context
 import android.content.Intent
 import com.velshletter.atlasmonitor.domain.repository.ServiceManager
-import com.velshletter.atlasmonitor.domain.repository.ServiceStateChecker
 
 class AndroidServiceManager(
     private val context: Context,

@@ -1,7 +1,6 @@
 package com.velshletter.atlasmonitor.domain.repository
 
 import com.velshletter.atlasmonitor.domain.models.MonitoringData
-import com.velshletter.atlasmonitor.domain.models.TimeItem
 import com.velshletter.atlasmonitor.domain.models.TripInfo
 
 interface SharedPrefRepository {
