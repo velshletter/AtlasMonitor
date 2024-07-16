@@ -32,8 +32,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.velshletter.atlasmonitor.presentation.service.AndroidServiceManager
-import com.velshletter.atlasmonitor.presentation.viewmodels.MainViewModel
+import com.velshletter.atlasmonitor.service.AndroidServiceManager
+import com.velshletter.atlasmonitor.presentation.viewmodel.MainViewModel
 
 
 @Composable

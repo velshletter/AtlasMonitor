@@ -1,4 +1,4 @@
-package com.velshletter.atlasmonitor.presentation.service
+package com.velshletter.atlasmonitor.service
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent

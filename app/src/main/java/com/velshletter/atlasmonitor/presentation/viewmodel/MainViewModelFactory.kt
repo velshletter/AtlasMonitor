@@ -1,4 +1,4 @@
-package com.velshletter.atlasmonitor.presentation.viewmodels
+package com.velshletter.atlasmonitor.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

@@ -1,4 +1,4 @@
-package com.velshletter.atlasmonitor.presentation.notification
+package com.velshletter.atlasmonitor.notification
 
 import android.Manifest
 import android.content.Context

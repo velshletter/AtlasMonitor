@@ -33,12 +33,12 @@ import com.example.data.data.WebsiteRepositoryImpl
 import com.example.domain.models.ResponseState
 import com.example.domain.repository.SharedPrefRepository
 import com.example.domain.usecase.StartMonitorUseCase
-import com.velshletter.atlasmonitor.presentation.notification.AndroidNotificationSender
+import com.velshletter.atlasmonitor.notification.AndroidNotificationSender
 import com.velshletter.atlasmonitor.presentation.screens.MainView
 import com.velshletter.atlasmonitor.presentation.screens.SecondScreen
-import com.velshletter.atlasmonitor.presentation.service.AndroidServiceManager
-import com.velshletter.atlasmonitor.presentation.viewmodels.MainViewModel
-import com.velshletter.atlasmonitor.presentation.viewmodels.MainViewModelFactory
+import com.velshletter.atlasmonitor.service.AndroidServiceManager
+import com.velshletter.atlasmonitor.presentation.viewmodel.MainViewModel
+import com.velshletter.atlasmonitor.presentation.viewmodel.MainViewModelFactory
 import com.velshletter.atlasmonitor.ui.theme.AtlasMonitorTheme
 
 class MainActivity : ComponentActivity() {

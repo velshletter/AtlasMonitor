@@ -1,4 +1,4 @@
-package com.velshletter.atlasmonitor.presentation.service
+package com.velshletter.atlasmonitor.service
 
 import android.content.Context
 import android.content.Intent
@@ -19,6 +19,4 @@ class AndroidServiceManager(
             context.stopService(it)
         }
     }
-
-
 }

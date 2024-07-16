@@ -1,5 +1,6 @@
 package com.velshletter.atlasmonitor.presentation.screens
 
+
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -12,11 +13,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,29 +32,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
-import com.velshletter.atlasmonitor.presentation.viewmodels.MainViewModel
+import com.velshletter.atlasmonitor.presentation.viewmodel.MainViewModel
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun MainView(
     mainViewModel: MainViewModel = viewModel(),
-){
+) {
     val valueFrom = mainViewModel.cityFromFlow.collectAsState()
     val valueTo = mainViewModel.cityToFlow.collectAsState()
 
-    var pickedDate by remember {
-        mutableStateOf(LocalDate.now())
-    }
+    val datePickerState = rememberMaterialDialogState()
+    var pickedDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
 
     val formattedDateView by remember {
         derivedStateOf {
@@ -60,23 +68,37 @@ fun MainView(
         }
     }
 
-    val dateDialogState = rememberMaterialDialogState()
-    MaterialTheme {
-        MaterialDialog(
-            dialogState = dateDialogState,
-            buttons = {
-                positiveButton("Oк")
-                negativeButton("Отмена")
-            }
+    MaterialDialog(
+        dialogState = datePickerState,
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        buttons = {
+            positiveButton(
+                text = "Ок",
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface)
+            )
+            negativeButton(
+                text = "Отмена",
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface)
+            )
+        },
+    ) {
+        datepicker(
+            colors = DatePickerDefaults.colors(
+                headerBackgroundColor = MaterialTheme.colorScheme.primary,
+                headerTextColor = MaterialTheme.colorScheme.onPrimary,
+                calendarHeaderTextColor = MaterialTheme.colorScheme.onSurface,
+                dateActiveBackgroundColor = MaterialTheme.colorScheme.primary,
+                dateActiveTextColor = MaterialTheme.colorScheme.onPrimary,
+                dateInactiveBackgroundColor = MaterialTheme.colorScheme.surface,
+                dateInactiveTextColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            initialDate = LocalDate.now(),
         ) {
-            datepicker(
-                initialDate = LocalDate.now()
-            ) {
-                pickedDate = it
-                mainViewModel.updateDate(pickedDate)
-            }
+            pickedDate = it
+            mainViewModel.updateDate(pickedDate)
         }
     }
+
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -97,10 +119,12 @@ fun MainView(
                     TextField(
                         value = valueFrom.value,
                         onValueChange = { mainViewModel.updateCityFrom(it) },
+                        singleLine = true,
                         placeholder = { Text(text = "Откуда", fontFamily = FontFamily.Monospace) },
                     )
                     TextField(
                         value = valueTo.value,
+                        singleLine = true,
                         onValueChange = { mainViewModel.updateCityTo(it) },
                         placeholder = { Text(text = "Куда", fontFamily = FontFamily.Monospace) },
                     )
@@ -111,7 +135,7 @@ fun MainView(
                                 LaunchedEffect(interactionSource) {
                                     interactionSource.interactions.collect {
                                         if (it is PressInteraction.Release) {
-                                            dateDialogState.show()
+                                            datePickerState.show()
                                         }
                                     }
                                 }
@@ -126,7 +150,6 @@ fun MainView(
                 modifier = Modifier
                     .size(280.dp, 56.dp)
                     .offset(0.dp, 5.dp),
-                colors = ButtonDefaults.buttonColors(Color.Blue),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
                     mainViewModel.findTrip()
