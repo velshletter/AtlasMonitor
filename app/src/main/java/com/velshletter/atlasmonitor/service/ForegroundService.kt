@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.velshletter.atlasmonitor.R
-import com.example.data.data.ServiceStateCheckerImpl
+import com.example.data.repository.ServiceStateCheckerImpl
 import com.example.domain.repository.ServiceStateChecker
 import com.velshletter.atlasmonitor.presentation.MainActivity
 

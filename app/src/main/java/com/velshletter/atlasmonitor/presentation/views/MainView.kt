@@ -1,26 +1,28 @@
-package com.velshletter.atlasmonitor.presentation.screens
+package com.velshletter.atlasmonitor.presentation.views
 
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,9 +33,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,13 +45,11 @@ import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import com.velshletter.atlasmonitor.R
 import com.velshletter.atlasmonitor.presentation.viewmodel.MainViewModel
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun MainView(
@@ -56,7 +57,6 @@ fun MainView(
 ) {
     val valueFrom = mainViewModel.cityFromFlow.collectAsState()
     val valueTo = mainViewModel.cityToFlow.collectAsState()
-
     val datePickerState = rememberMaterialDialogState()
     var pickedDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
 
@@ -99,15 +99,12 @@ fun MainView(
         }
     }
 
-
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxHeight(0.8f)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth(0.7f),
             verticalArrangement = Arrangement.Center
         ) {
             Card(
@@ -120,13 +117,27 @@ fun MainView(
                         value = valueFrom.value,
                         onValueChange = { mainViewModel.updateCityFrom(it) },
                         singleLine = true,
-                        placeholder = { Text(text = "Откуда", fontFamily = FontFamily.Monospace) },
+                        placeholder = { Text(text = "Откуда") },
                     )
                     TextField(
                         value = valueTo.value,
                         singleLine = true,
                         onValueChange = { mainViewModel.updateCityTo(it) },
-                        placeholder = { Text(text = "Куда", fontFamily = FontFamily.Monospace) },
+                        placeholder = { Text(text = "Куда") },
+                        trailingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.round_compare_arrows_24),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(MaterialTheme.colorScheme.surface)
+                                    .clickable {
+                                        mainViewModel.swapRoutes()
+                                    },
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     )
                     TextField(
                         readOnly = true,
@@ -142,22 +153,37 @@ fun MainView(
                             },
                         value = formattedDateView,
                         onValueChange = { },
-                        placeholder = { Text("Дата", fontFamily = FontFamily.Monospace) },
+                        placeholder = { Text("Дата") },
                     )
                 }
             }
+            Spacer(modifier = Modifier.size(8.dp))
             Button(
                 modifier = Modifier
-                    .size(280.dp, 56.dp)
-                    .offset(0.dp, 5.dp),
+                    .size(280.dp, 56.dp),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
                     mainViewModel.findTrip()
                 }
             ) {
-                Text("Далее", fontSize = 15.sp, fontFamily = FontFamily.Monospace)
+                Text("Далее", fontSize = 16.sp)
             }
-
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                modifier = Modifier.padding(start = 16.dp),
+                text = "Предыдущий поиск:",
+                fontSize = 12.sp
+            )
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .clickable {
+                        mainViewModel.setLastSearchInfo()
+                    },
+                text = mainViewModel.loadLastSearch(),
+                fontSize = 14.sp
+            )
         }
     }
 

@@ -8,23 +8,28 @@ import com.example.domain.models.ResponseState
 import com.example.domain.models.TimeItem
 import com.example.domain.models.TripInfo
 import com.example.domain.models.UrlConverter
+import com.example.domain.repository.ServiceManager
+import com.example.domain.repository.ServiceStateChecker
 import com.example.domain.repository.SharedPrefRepository
-import com.example.domain.repository.WebsiteRepository
 import com.example.domain.usecase.GetTripInfoUseCase
 import com.example.domain.usecase.StartMonitorUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val startMonitorUseCase: StartMonitorUseCase,
-    private val sharedPrefRepositoryImpl: SharedPrefRepository,
-    websiteRepository: WebsiteRepository
+    private val getTripInfoUseCase: GetTripInfoUseCase,
+    private val sharedPrefRepository: SharedPrefRepository,
+    private val serviceManager: ServiceManager,
+    private val serviceStateChecker: ServiceStateChecker,
 ) : ViewModel() {
 
-    private val getTripInfoUseCase = GetTripInfoUseCase(websiteRepository)
     private var timeList: List<String> = listOf()
     private var url = ""
 
@@ -48,7 +53,9 @@ class MainViewModel(
 
     fun findTrip() {
         viewModelScope.launch {
-            if (cityFromFlow.value.trim().isEmpty() || cityToFlow.value.trim().isEmpty() || dateFlow.value.isEmpty()) {
+            if (cityFromFlow.value.trim().isEmpty() || cityToFlow.value.trim()
+                    .isEmpty() || dateFlow.value.isEmpty()
+            ) {
                 _responseState.value = ResponseState.Error("Заполните все поля")
                 return@launch
             }
@@ -57,11 +64,11 @@ class MainViewModel(
                 cityToFlow.value.trim(),
                 dateFlow.value
             )
-            sharedPrefRepositoryImpl.saveTripInfo(tripInfo)
             url = UrlConverter(tripInfo).getUrl()
             _responseState.value = ResponseState.Loading
             timeList = getTripInfoUseCase.execute(url = url)
             if (timeList.isNotEmpty()) {
+                sharedPrefRepository.saveTripInfo(tripInfo)
                 _selectedTime.value = timeList.map {
                     TimeItem(time = it, isSelected = false)
                 }
@@ -74,25 +81,51 @@ class MainViewModel(
         }
     }
 
-    fun startMonitor(){
+    fun startMonitor() {
         if (selectedTime.value.all { !it.isSelected }) {
             _showToast.value = "Укажите время"
         } else {
-            sharedPrefRepositoryImpl.saveMonitoringData(
-                MonitoringData( url, timeList)
+            sharedPrefRepository.saveMonitoringData(
+                MonitoringData(url, timeList)
             )
+
             startMonitorUseCase.execute(url = url, timeList = selectedTime.value)
         }
     }
 
-    fun loadSavedData(){
-        val monitoringData = sharedPrefRepositoryImpl.getMonitorData()
-        url = monitoringData.url
-        timeList = monitoringData.timeList
-        _selectedTime.value = timeList.map {
-            TimeItem(time = it, isSelected = false)
+    fun isMonitoring() {
+        if (!serviceStateChecker.isServiceRunning()) {
+            return
+        } else {
+            val monitoringData = sharedPrefRepository.getMonitorData()
+            url = monitoringData.url
+            timeList = monitoringData.timeList
+            _selectedTime.value = timeList.map {
+                TimeItem(time = it, isSelected = false)
+            }
+            _responseState.value = ResponseState.Success
         }
-        _responseState.value = ResponseState.Success
+    }
+
+    fun stopService() {
+        serviceManager.stopService()
+    }
+
+    fun setLastSearchInfo() {
+        val lastTripInfo = sharedPrefRepository.getTripInfo()
+        _cityFromFlow.value = lastTripInfo.from
+        _cityToFlow.value = lastTripInfo.to
+    }
+
+    fun swapRoutes() {
+        val from = cityFromFlow.value
+        _cityFromFlow.value = cityToFlow.value
+        _cityToFlow.value = from
+    }
+
+    fun loadLastSearch(): String {
+        val lastTripInfo = sharedPrefRepository.getTripInfo()
+        return "${lastTripInfo.from} - ${lastTripInfo.to}"
     }
 
     fun clear() {
@@ -129,8 +162,9 @@ class MainViewModel(
             .format(date)
     }
 
-    fun clearToastMessage(){
+    fun clearToastMessage() {
         _showToast.value = null
     }
+
 
 }

@@ -1,4 +1,4 @@
-package com.velshletter.atlasmonitor.presentation.screens
+package com.velshletter.atlasmonitor.presentation.views
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -32,14 +32,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.velshletter.atlasmonitor.service.AndroidServiceManager
 import com.velshletter.atlasmonitor.presentation.viewmodel.MainViewModel
 
 
 @Composable
 fun SecondScreen(
-    mainViewModel: MainViewModel = viewModel(),
-    serviceManager: AndroidServiceManager,
+    mainViewModel: MainViewModel = viewModel()
 ) {
 
     val timeList by mainViewModel.selectedTime.collectAsState()
@@ -90,9 +88,9 @@ fun SecondScreen(
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
                                     contentDescription = "Selected",
-                                    tint = Color.Blue,
+                                    tint = Color.White,
                                     modifier = Modifier
-                                        .size(25.dp)
+                                        .size(24.dp)
                                         .padding(end = 10.dp)
                                 )
                             }
@@ -119,7 +117,7 @@ fun SecondScreen(
                 colors = ButtonDefaults.buttonColors(Color.Blue),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
-                    serviceManager.stopService()
+                    mainViewModel.stopService()
                 }
             ) {
                 Text("Остановить поиск", fontSize = 15.sp, fontFamily = FontFamily.Monospace)

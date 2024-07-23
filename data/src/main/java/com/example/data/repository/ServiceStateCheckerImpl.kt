@@ -1,4 +1,4 @@
-package com.example.data.data
+package com.example.data.repository
 
 import android.content.Context
 import com.example.data.data.SharedPrefsConstants.PREFS_NAME

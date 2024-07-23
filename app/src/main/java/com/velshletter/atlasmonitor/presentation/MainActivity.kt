@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,52 +22,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.data.data.ServiceStateCheckerImpl
-import com.example.data.data.SharedPrefRepositoryImpl
-import com.example.data.data.WebsiteRepositoryImpl
 import com.example.domain.models.ResponseState
-import com.example.domain.repository.SharedPrefRepository
-import com.example.domain.usecase.StartMonitorUseCase
-import com.velshletter.atlasmonitor.notification.AndroidNotificationSender
-import com.velshletter.atlasmonitor.presentation.screens.MainView
-import com.velshletter.atlasmonitor.presentation.screens.SecondScreen
-import com.velshletter.atlasmonitor.service.AndroidServiceManager
+import com.velshletter.atlasmonitor.presentation.views.MainView
+import com.velshletter.atlasmonitor.presentation.views.SecondScreen
 import com.velshletter.atlasmonitor.presentation.viewmodel.MainViewModel
-import com.velshletter.atlasmonitor.presentation.viewmodel.MainViewModelFactory
 import com.velshletter.atlasmonitor.ui.theme.AtlasMonitorTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-
-        val sharedPrefRepositoryImpl: SharedPrefRepository = SharedPrefRepositoryImpl(applicationContext)
-        val serviceStateChecker = ServiceStateCheckerImpl(applicationContext)
-        val websiteRepository = WebsiteRepositoryImpl()
-        val notificationSender = AndroidNotificationSender(applicationContext)
-        val serviceManager = AndroidServiceManager(applicationContext)
-        val startMonitorUseCase = StartMonitorUseCase(
-            websiteRepository = websiteRepository,
-            notificationSender = notificationSender,
-            serviceManager = serviceManager,
-            serviceStateChecker = serviceStateChecker
-        )
-
-        val viewModelFactory = MainViewModelFactory(startMonitorUseCase, sharedPrefRepositoryImpl, websiteRepository)
-        val mainViewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
-
-        if (serviceStateChecker.isServiceRunning()) {
-            mainViewModel.loadSavedData()
-        }
-
         onCreateNotificationChannel()
+        val mainViewModel: MainViewModel by viewModels()
+        mainViewModel.isMonitoring()
         setContent {
             val navController = rememberNavController()
             AtlasMonitorTheme {
@@ -74,7 +50,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Navigation(mainViewModel, navController, serviceManager)
+                    Navigation(mainViewModel, navController)
                 }
             }
             val responseState by mainViewModel.responseState.collectAsState()
@@ -131,12 +107,11 @@ class MainActivity : ComponentActivity() {
 fun Navigation(
     mainViewModel: MainViewModel,
     navController: NavHostController,
-    serviceManager: AndroidServiceManager,
     startDestination: String = "main_screen",
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable("main_screen") { MainView(mainViewModel) }
-        composable("sec_screen") { SecondScreen(mainViewModel, serviceManager) }
+        composable("sec_screen") { SecondScreen(mainViewModel) }
     }
 }
 

@@ -1,4 +1,4 @@
-package com.example.data.data
+package com.example.data.repository
 
 import android.content.Context
 import com.example.data.data.SharedPrefsConstants.PREFS_FROM
@@ -15,7 +15,7 @@ import com.google.gson.reflect.TypeToken
 class SharedPrefRepositoryImpl(context: Context) : SharedPrefRepository {
 
 
-    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     override fun saveMonitoringData(data: MonitoringData) {
         val jsonList = Gson().toJson(data.timeList)

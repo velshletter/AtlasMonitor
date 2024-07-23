@@ -1,4 +1,4 @@
-package com.example.data.data
+package com.example.data.repository
 
 import com.example.domain.repository.WebsiteRepository
 import org.jsoup.Jsoup
