@@ -1,6 +1,7 @@
 package com.velshletter.atlasmonitor.presentation.views
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -60,7 +62,7 @@ fun SecondScreen(
             Card(
                 modifier = Modifier.heightIn(0.dp, 280.dp),
                 shape = RoundedCornerShape(20.dp),
-//                    elevation = CardDefaults.cardElevation(5.dp)
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
             ) {
                 LazyColumn(
                     verticalArrangement = Arrangement.Center
@@ -81,17 +83,18 @@ fun SecondScreen(
                         ) {
                             Text(
                                 text = timeList[index].time,
-                                fontSize = 18.sp,
-                                modifier = Modifier.padding(10.dp, 0.dp)
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(16.dp, 0.dp)
                             )
                             if (timeList[index].isSelected) {
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
                                     contentDescription = "Selected",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier
-                                        .size(24.dp)
-                                        .padding(end = 10.dp)
+                                        .size(32.dp)
+                                        .padding(end = 16.dp)
                                 )
                             }
                         }

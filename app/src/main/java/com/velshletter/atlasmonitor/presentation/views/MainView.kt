@@ -1,6 +1,7 @@
 package com.velshletter.atlasmonitor.presentation.views
 
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -104,6 +105,7 @@ fun MainView(
             verticalArrangement = Arrangement.Center
         ) {
             Card(
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
                 shape = RoundedCornerShape(20.dp),
             ) {
                 Column(
@@ -127,7 +129,6 @@ fun MainView(
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.surface)
                                     .clickable {
                                         mainViewModel.swapRoutes()
                                     },

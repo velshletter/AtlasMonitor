@@ -125,7 +125,9 @@ class MainViewModel @Inject constructor(
 
     fun loadLastSearch(): String {
         val lastTripInfo = sharedPrefRepository.getTripInfo()
-        return "${lastTripInfo.from} - ${lastTripInfo.to}"
+        return if (lastTripInfo.from.isNotEmpty() && lastTripInfo.to.isNotEmpty()) {
+            "${lastTripInfo.from} - ${lastTripInfo.to}"
+        } else ""
     }
 
     fun clear() {

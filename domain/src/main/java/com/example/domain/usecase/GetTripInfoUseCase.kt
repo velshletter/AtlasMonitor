@@ -13,7 +13,6 @@ class GetTripInfoUseCase(private val websiteRepository: WebsiteRepository) {
         return withContext(Dispatchers.IO) {
             try {
                 val doc = websiteRepository.getWebsite(url)
-                Log.d("MyLog", doc.toString())
                 val time =
                     doc.select("div.MuiGrid-grid-md-3.MuiGrid-item.MuiGrid-root:nth-of-type(1)")
                 val info =
